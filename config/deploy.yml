@@ -3,7 +3,7 @@ image: <DOCKER_USERNAME>/astro-starter
 servers:
   web:
     hosts:
-      - 203.45.178.92
+      - 420.69.42.69
     options:
       network: private
 env:
@@ -15,7 +15,7 @@ env:
 accessories:
   postgres:
     image: postgres:16.0
-    host: 203.45.178.92
+    host: 420.69.42.69
     options:
       network: private
     env:
@@ -29,7 +29,7 @@ accessories:
 
   backups:
     image: eeshugerman/postgres-backup-s3:16
-    host: 203.45.178.92
+    host: 420.69.42.69
     options:
       network: private
     env:
