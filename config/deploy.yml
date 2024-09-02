@@ -1,0 +1,64 @@
+service: astro
+image: <DOCKER_USERNAME>/astro-starter
+servers:
+  web:
+    hosts:
+      - 203.45.178.92
+    options:
+      network: private
+env:
+  clear:
+    NODE_ENV: production
+  secret:
+    - POSTGRES_URL
+
+accessories:
+  postgres:
+    image: postgres:16.0
+    host: 203.45.178.92
+    options:
+      network: private
+    env:
+      clear:
+        POSTGRES_DB: "postgres"
+      secret:
+        - POSTGRES_USER
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+
+  backups:
+    image: eeshugerman/postgres-backup-s3:16
+    host: 203.45.178.92
+    options:
+      network: private
+    env:
+      clear:
+        SCHEDULE: "@hourly"
+        BACKUP_KEEP_DAYS: 7
+        S3_PREFIX: backups
+        POSTGRES_HOST: astro-postgres
+        POSTGRES_DATABASE: postgres
+      secret:
+        - POSTGRES_USER
+        - POSTGRES_PASSWORD
+        - S3_REGION
+        - S3_BUCKET
+        - S3_ENDPOINT
+        - S3_ACCESS_KEY_ID
+        - S3_SECRET_ACCESS_KEY
+
+traefik:
+  options:
+    network: private
+
+registry:
+  username:
+    - KAMAL_REGISTRY_USERNAME
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+ssh:
+  keys_only: true
+  keys:
+    - ~/.ssh/kamal

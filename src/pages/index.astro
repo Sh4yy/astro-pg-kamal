@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+import prisma from '../utils/database';
+
+const todos = await prisma.todo.findMany({
+	orderBy: {
+		createdAt: 'desc',
+	},
+});
+
+if (Astro.request.method === "POST") {
+	try {
+		const data = await Astro.request.formData();
+		const intent = data.get('intent');
+
+		if (intent === 'create') {
+			const title = data.get('title') as string;
+			await prisma.todo.create({ data: { title } });
+		} 
+		if (intent === 'delete') {
+			const id = data.get('id') as string;
+			await prisma.todo.delete({ where: { id: Number(id) } });
+		}
+		if (intent === 'complete') {
+			const id = data.get('id') as string;
+			await prisma.todo.update({ where: { id: Number(id) }, data: { completed: true } });
+		}
+		
+		return Astro.redirect('/');
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+---
+
+<Layout title="Todo App">
+	<main class="font-sans max-w-2xl mx-auto p-6">
+		<h1 class="text-3xl font-bold text-gray-800 text-center mb-8">Todo App</h1>
+		
+		<form method="POST" class="flex mb-6">
+			<input type="hidden" name="intent" value="create">
+			<input type="text" name="title" placeholder="Add a new todo" required class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+			<button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Add</button>
+		</form>
+
+		<ul class="space-y-3">
+			{todos.map((todo) => (
+				<li class="flex items-center bg-white p-3 border border-gray-200 rounded-md">
+					<div class="mr-3">
+						{todo.completed ? (
+							<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+							</svg>
+						) : (
+							<form method="POST">
+								<input type="hidden" name="intent" value="complete">
+								<input type="hidden" name="id" value={todo.id.toString()}>
+								<button type="submit" class="w-6 h-6 border-2 border-gray-300 rounded-full hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500"></button>
+							</form>
+						)}
+					</div>
+					<span class="flex-grow">
+						<span class={todo.completed ? "line-through text-gray-500" : "text-gray-800"}>{todo.title}</span>
+					</span>
+					<form method="POST">
+						<input type="hidden" name="intent" value="delete">
+						<input type="hidden" name="id" value={todo.id.toString()}>
+						<button type="submit" class="text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+							</svg>
+						</button>
+					</form>
+				</li>
+			))}
+		</ul>
+	</main>
+</Layout>

@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+# Create a Docker network on the defined hosts
+
+hosts = ENV["KAMAL_HOSTS"].split(",")
+
+hosts.each do |ip|
+  # Update the ssh key if you're using a different one
+  destination = "root@#{ip} -i ~/.ssh/kamal"
+  puts "Creating a Docker network \"private\" on #{destination}"
+  `ssh #{destination} docker network create private`
+end
