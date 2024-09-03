@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { AuthController } from '../controllers/auth';
+
+let errorMessage: string | null = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const email = form.get('email');
+  const password = form.get('password');
+
+  if (typeof email === 'string' && typeof password === 'string') {
+    const result = await AuthController.signin({ email, password, ipAddress: Astro.clientAddress });
+    if (result.isOk()) {
+      Astro.locals.auth.setSession(result.value);
+      return Astro.redirect('/');
+    } 
+    errorMessage = result.error.message;
+  } else {
+    errorMessage = 'Invalid input';
+  }
+}
+---
+
+<Layout title="Sign In">
+  <div class="max-w-md mx-auto mt-16 p-8">
+    <h1 class="text-3xl font-light text-center mb-8 text-gray-800">Sign In</h1>
+    <div class="w-16 h-1 bg-blue-500 mx-auto mb-8"></div>
+    <form method="POST">
+      <div class="mb-6">
+        <input type="email" id="email" name="email" required placeholder="Email" class="w-full py-3 px-4 bg-white border-l-4 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition duration-300">
+      </div>
+      <div class="mb-8">
+        <input type="password" id="password" name="password" required placeholder="Password" class="w-full py-3 px-4 bg-white border-l-4 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition duration-300">
+      </div>
+      <button type="submit" class="w-full bg-blue-500 text-white font-medium py-3 px-4 hover:bg-blue-600 transition duration-300">Sign In</button>
+    </form>
+    {errorMessage && <p class="text-red-500 text-sm text-center mt-4">{errorMessage}</p>}
+    <p class="text-sm text-center mt-8 text-gray-600">Don't have an account? <a href="/signup" class="text-blue-500 hover:underline">Sign up</a></p>
+  </div>
+</Layout>

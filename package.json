@@ -7,16 +7,27 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
     "@astrojs/node": "^8.3.3",
     "@astrojs/tailwind": "^5.1.0",
+    "@lucia-auth/adapter-prisma": "^4.0.1",
+    "@node-rs/argon2": "^1.8.3",
     "@prisma/client": "^5.19.0",
     "astro": "^4.15.1",
+    "lucia": "^3.2.0",
+    "neverthrow": "^7.1.0",
     "prisma": "^5.19.0",
+    "rate-limiter-flexible": "^5.0.3",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.8"
   }
 }

@@ -1,0 +1,13 @@
+---
+import { auth } from '../utils/lucia';
+
+const result = await Astro.locals.auth.validate();
+if (result.isErr()) {
+  return Astro.redirect('/signin');
+}
+
+await auth.invalidateSession(result.value.session.id);
+Astro.locals.auth.setSession(null);
+
+return Astro.redirect('/signin');
+---
